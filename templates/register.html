@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auto Face Registration</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h1>Face Registration</h1>
+
+    <form method="POST" id="registerForm">
+        <input type="text" name="name" id="name" placeholder="Enter Name" required>
+        <input type="email" name="email" id="email" placeholder="Enter Email" required>
+
+        <video id="video" width="300" height="220" autoplay style="border-radius:10px;"></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+
+        <input type="hidden" name="image_data" id="image_data">
+
+        <p id="status">📷 Enter name & email to start auto capture</p>
+    </form>
+</div>
+
+<script>
+const video = document.getElementById("video");
+const nameInput = document.getElementById("name");
+const emailInput = document.getElementById("email");
+const statusText = document.getElementById("status");
+
+let countdownStarted = false;
+
+// Start Camera
+navigator.mediaDevices.getUserMedia({ video: true })
+.then(stream => {
+    video.srcObject = stream;
+})
+.catch(err => {
+    alert("Camera access denied!");
+});
+
+// Detect when both fields filled
+function checkInputs() {
+    if (nameInput.value.trim() !== "" &&
+        emailInput.value.trim() !== "" &&
+        !countdownStarted) {
+
+        countdownStarted = true;
+        startCountdown();
+    }
+}
+
+nameInput.addEventListener("input", checkInputs);
+emailInput.addEventListener("input", checkInputs);
+
+function startCountdown() {
+    let seconds = 5;
+    statusText.innerText = "⏳ Capturing in 5 seconds...";
+
+    const countdown = setInterval(() => {
+        seconds--;
+        statusText.innerText = "⏳ Capturing in " + seconds + " seconds...";
+
+        if (seconds <= 0) {
+            clearInterval(countdown);
+            captureImage();
+        }
+    }, 1000);
+}
+
+function captureImage() {
+    const canvas = document.getElementById("canvas");
+    const context = canvas.getContext("2d");
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    context.drawImage(video, 0, 0);
+
+    const imageData = canvas.toDataURL("image/jpeg");
+
+    document.getElementById("image_data").value = imageData;
+
+    // Stop camera
+    video.srcObject.getTracks().forEach(track => track.stop());
+
+    statusText.innerText = "✅ Face Captured! Saving...";
+
+    document.getElementById("registerForm").submit();
+}
+</script>
+
+</body>
+</html>

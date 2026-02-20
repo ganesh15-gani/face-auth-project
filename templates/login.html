@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h1>Face Login</h1>
+
+    <form method="POST" id="loginForm">
+
+        <video id="video" width="300" height="220" autoplay style="border-radius:10px;"></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+
+        <input type="hidden" name="image_data" id="image_data">
+
+        <p id="status">📷 Looking at camera... Login in 5 seconds</p>
+    </form>
+</div>
+
+<script>
+const video = document.getElementById("video");
+const statusText = document.getElementById("status");
+
+// Start camera
+navigator.mediaDevices.getUserMedia({ video: true })
+.then(stream => {
+    video.srcObject = stream;
+    startCountdown();
+})
+.catch(err => {
+    alert("Camera access denied!");
+});
+
+function startCountdown() {
+    let seconds = 5;
+
+    const countdown = setInterval(() => {
+        seconds--;
+        statusText.innerText = "⏳ Logging in " + seconds + " seconds...";
+
+        if (seconds <= 0) {
+            clearInterval(countdown);
+            captureImage();
+        }
+    }, 1000);
+}
+
+function captureImage() {
+    const canvas = document.getElementById("canvas");
+    const context = canvas.getContext("2d");
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    context.drawImage(video, 0, 0);
+
+    const imageData = canvas.toDataURL("image/jpeg");
+    document.getElementById("image_data").value = imageData;
+
+    video.srcObject.getTracks().forEach(track => track.stop());
+
+    document.getElementById("loginForm").submit();
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            backdrop-filter: blur(15px);
+            background: rgba(255,255,255,0.15);
+            border-radius: 20px;
+            padding: 40px;
+            width: 900px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            color: white;
+            text-align: center;
+        }
+
+        .top-buttons {
+            margin-bottom: 20px;
+        }
+
+        .attendance-btn {
+            background: #00c6ff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: 0.3s;
+        }
+
+        .attendance-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .logout-btn {
+            background: #ff512f;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .logout-btn:hover {
+            transform: scale(1.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background: rgba(0,0,0,0.3);
+        }
+
+        tr:nth-child(even) {
+            background: rgba(255,255,255,0.1);
+        }
+
+        img {
+            border-radius: 8px;
+        }
+
+        .delete-btn {
+            background: crimson;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="admin-container">
+
+    <h1>Admin Dashboard</h1>
+    <h3>Total Registered Users: {{ total_users }}</h3>
+
+    <div class="top-buttons">
+        <a href="/admin/attendance">
+            <button class="attendance-btn">View Attendance</button>
+        </a>
+
+        <a href="/logout">
+            <button class="logout-btn">Logout</button>
+        </a>
+    </div>
+
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Profile</th>
+            <th>Action</th>
+        </tr>
+
+        {% for user in users %}
+        <tr>
+            <td>{{ user[1] }}</td>
+            <td>{{ user[2] }}</td>
+            <td>
+                <img src="{{ url_for('serve_image', filename=user[1].replace(' ','_') + '.jpg') }}"
+                     width="60">
+            </td>
+            <td>
+                <a href="/delete_user/{{ user[0] }}">
+                    <button class="delete-btn">Delete</button>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</div>
+
+</body>
+</html>
