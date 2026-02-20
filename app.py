@@ -7,6 +7,8 @@ app = Flask(__name__)
 app.secret_key = "ganesh_super_secret_key"
 
 
+# ================= USER ROUTES =================
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -56,9 +58,11 @@ def dashboard():
     username = session["user"]
     safe_name = username.replace(" ", "_")
 
-    return render_template("dashboard.html",
-                           username=username,
-                           filename=safe_name + ".jpg")
+    return render_template(
+        "dashboard.html",
+        username=username,
+        filename=safe_name + ".jpg"
+    )
 
 
 @app.route("/dataset/<filename>")
@@ -73,9 +77,9 @@ def logout():
 
 
 # ================= ADMIN =================
+
 @app.route("/admin", methods=["GET", "POST"])
 def admin_login():
-
     if request.method == "POST":
         username = request.form["username"].strip()
         password = request.form["password"].strip()
@@ -91,7 +95,6 @@ def admin_login():
 
 @app.route("/admin/dashboard")
 def admin_dashboard():
-
     if "admin" not in session:
         return redirect(url_for("admin_login"))
 
@@ -106,21 +109,24 @@ def admin_dashboard():
 
     conn.close()
 
-    return render_template("admin_dashboard.html",
-                           users=users,
-                           total_users=total_users)
+    return render_template(
+        "admin_dashboard.html",
+        users=users,
+        total_users=total_users
+    )
 
 
 @app.route("/admin/attendance")
 def view_attendance():
-
     if "admin" not in session:
         return redirect(url_for("admin_login"))
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT user_name, login_time FROM attendance ORDER BY login_time DESC")
+    cursor.execute(
+        "SELECT user_name, login_time FROM attendance ORDER BY login_time DESC"
+    )
     records = cursor.fetchall()
 
     conn.close()
@@ -130,7 +136,6 @@ def view_attendance():
 
 @app.route("/delete_user/<int:user_id>")
 def delete_user(user_id):
-
     if "admin" not in session:
         return redirect(url_for("admin_login"))
 
@@ -155,5 +160,8 @@ def delete_user(user_id):
     return redirect(url_for("admin_dashboard"))
 
 
+# ================= RENDER DEPLOY FIX =================
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
